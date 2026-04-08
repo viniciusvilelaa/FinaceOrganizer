@@ -76,4 +76,52 @@ export async function getUser(userId) {
   return user;
 }
 
-//Funcao de login retornando o token JWT
+//LOGIN USER
+// Autentica usuário com e-mail/senha e retorna token JWT.
+export async function loginUser({ email, password }) {
+  // Validação básica de credenciais.
+  if (!email || !password) {
+    throw new ApiError(400, "Email and password are required.");
+  }
+
+  // Busca usuário por e-mail incluindo hash para validação de senha.
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      passwordHash: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  // Evita detalhar se o e-mail existe ou não.
+  if (!user) {
+    throw new ApiError(401, "Invalid credentials.");
+  }
+
+  // Compara senha informada com hash salvo no banco.
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid credentials.");
+  }
+
+  // Gera token de autenticação para uso nas rotas protegidas.
+  const token = jwt.sign({ sub: user.id, email: user.email }, env.jwtSecret, {
+    expiresIn: env.jwtExpiresIn,
+  });
+
+  // Remove dados sensíveis antes de devolver o usuário.
+  const safeUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+
+  return { user: safeUser, token };
+}
