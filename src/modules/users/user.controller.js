@@ -10,18 +10,15 @@ export const createUser =  async (req, res) => {
 
 //HTTP REQUEST GET
 export async function getUsers (req, res, next){
-    try{
-        const users = await userServices.getAllUsers();
-        return res.status(201).json(users);
-    }catch(err){
-        next(err)
-    }
+    
+    const users = await userServices.getAllUsers();
+    return res.status(200).json(users);
 }
 
 //HTTP REQUEST LOGIN
 export const loginUser = async (req, res) => {
     const {email, password} = req.body;
-    const result = await userServices.loginUser(email,password);
+    const result = await userServices.loginUser({ email, password });
 
-    return res.status(201).json(result);
+    return res.status(200).json(result);
 }
