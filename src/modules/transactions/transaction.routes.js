@@ -12,3 +12,5 @@ transactionRouter.get("/", asyncHandler(transactionController.getAllTransactions
 transactionRouter.get("/:id", asyncHandler(transactionController.getTransactionById));
 transactionRouter.post("/", asyncHandler(transactionController.createTransaction));
 transactionRouter.delete("/:id", asyncHandler(transactionController.deleteTransaction));
+
+export { transactionRouter }
