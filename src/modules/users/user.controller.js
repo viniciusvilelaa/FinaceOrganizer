@@ -15,6 +15,14 @@ export async function getUsers (req, res, next){
     return res.status(200).json(users);
 }
 
+//HTTP REQUEST GET /ME
+export const getMe = async (req, res) => {
+  const userId = req.user?.sub;
+  const user = await userServices.getMe(userId);
+
+  return res.status(200).json(user);
+}
+
 //HTTP REQUEST LOGIN
 export const loginUser = async (req, res) => {
     const {email, password} = req.body;
