@@ -20,6 +20,7 @@ model Transaction {
   id          Int      @id @default(autoincrement())
   Amount      Float
   Type        String
+  Category    TransactionCategory
   Description String
   Date        DateTime
 
