@@ -76,6 +76,26 @@ export async function getUser(userId) {
   return user;
 }
 
+//GET USERS
+// Lista todos os usuários sem expor dados sensíveis.
+export async function getAllUsers() {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return users;
+}
+
+
 //LOGIN USER
 // Autentica usuário com e-mail/senha e retorna token JWT.
 export async function loginUser({ email, password }) {
