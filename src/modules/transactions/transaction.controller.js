@@ -4,7 +4,7 @@ import * as transactionService from "./transaction.service.js"
 export const createTransaction = async (req, res) => {
     const userId = req.user.sub;
     const transaction = await transactionService.createTransaction(userId, req.body);
-    return res.status(200).json(transaction);
+    return res.status(201).json(transaction);
 }
 
 //Endpoint para getAll transactions
