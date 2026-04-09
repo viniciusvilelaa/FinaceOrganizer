@@ -16,11 +16,11 @@ export async function createTransaction(userId, payload) {
 
   const transaction = await prisma.transaction.create({
     data: {
-      Amount: Number(amount),
-      Type: type,
-      Category: category,
-      Description: description,
-      Date: new Date(date),
+      amount: Number(amount),
+      type: type,
+      category: category,
+      description: description,
+      date: new Date(date),
       userId: Number(userId),
     },
   });
@@ -37,7 +37,7 @@ export async function getAllTransactions(userId) {
 
   return prisma.transaction.findMany({
     where: { userId: Number(userId) },
-    orderBy: { Date: "desc" },
+    orderBy: { date: "desc" },
   });
 }
 
@@ -75,5 +75,5 @@ export async function deleteTransaction(userId, transactionId) {
     where: { id: transaction.id },
   });
 
-  return { message: "Transaction deleted successfully." };
+  return { message: `Transaction ${transactionId} deleted successfully.` };
 }

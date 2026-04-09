@@ -18,11 +18,11 @@ model User {
 
 model Transaction {
   id          Int      @id @default(autoincrement())
-  Amount      Float
-  Type        String
-  Category    TransactionCategory
-  Description String
-  Date        DateTime
+  amount      Float
+  type        String
+  category    TransactionCategory
+  description String
+  date        DateTime
 
   userId Int
   user   User   @relation(fields: [userId], references: [id])
@@ -32,7 +32,5 @@ enum TransactionCategory {
   COMIDA
   TRANSPORTE
   LAZER
-  CASA
-  OUTROS
-  PET
+  
 }
