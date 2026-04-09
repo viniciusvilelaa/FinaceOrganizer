@@ -32,3 +32,11 @@ export const deleteTransaction = async (req, res) => {
 
     return res.status(200).json(transaction);
 }
+
+//Endpoint para retorno de saldo
+export const getSummary = async (req, res) => {
+    const userId = req.user.sub;
+    const balances = await transactionService.getSummary(userId);
+
+    return res.status(200).json(balances);
+};
