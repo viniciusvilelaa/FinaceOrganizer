@@ -77,3 +77,36 @@ export async function deleteTransaction(userId, transactionId) {
 
   return { message: `Transaction ${transactionId} deleted successfully.` };
 }
+
+export async function getSummary(userId){
+  if (!userId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
+
+  const incomeTransactions = await prisma.transaction.aggregate({
+    where: {
+      userId: Number(userId),
+      type: "INCOME"
+    },
+    _sum: {
+      amount: true,
+    }
+  });
+
+  const expenseTransactions = await prisma.transaction.aggregate({
+    where: {
+      userId: Number(userId),
+      type: "EXPENSE"
+    },
+    _sum: {
+      amount: true,
+    }
+  });
+
+  const totalIncome = incomeTransactions._sum.amount || 0;
+  const totalExpense = expenseTransactions._sum.amount || 0;
+  const totalBalance = totalIncome - totalExpense;
+
+  return {totalBalance, totalExpense, totalIncome}
+
+}
