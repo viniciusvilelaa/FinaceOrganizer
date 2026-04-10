@@ -8,10 +8,10 @@ const transactionRouter = express.Router();
 transactionRouter.use(authMiddleware);
 
 //Config dos endpoints
+transactionRouter.post("/", asyncHandler(transactionController.createTransaction));
 transactionRouter.get("/", asyncHandler(transactionController.getAllTransactions));
 transactionRouter.get("/summary", asyncHandler(transactionController.getSummary));
 transactionRouter.get("/:id", asyncHandler(transactionController.getTransactionById));
-transactionRouter.post("/", asyncHandler(transactionController.createTransaction));
 transactionRouter.delete("/:id", asyncHandler(transactionController.deleteTransaction));
 
 
