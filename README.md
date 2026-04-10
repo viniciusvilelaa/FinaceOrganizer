@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# FinaceOrganizer
+# FinaceOrganizer back-end
 Sistema web para organização financeira com React + Express Js
 =======
 # FinanceOrganizer API
@@ -16,9 +15,8 @@ Esqueleto de backend com Express + Prisma + MySQL para Node 24.
 
 ## Setup
 
-1. Copie `.env.example` para `.env`
-2. Ajuste `DATABASE_URL` e `JWT_SECRET`
-3. Rode os comandos:
+1. Ajuste `DATABASE_URL` e `JWT_SECRET`
+2. Rode os comandos:
 
 ```bash
 npm install
@@ -32,7 +30,11 @@ Base URL: `http://localhost:3333/api`
 ## Endpoints iniciais
 
 - `GET /api/health`
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/me` (Bearer Token)
->>>>>>> b9951a9 (Initial project config with prisma models)
+- `POST /api/users`
+- `POST /api/users/login`
+- `GET /api/users/me` (Bearer Token)
+- `POST /api/transactions`
+- `GET /api/transactions`
+- `GET /api/transactions/summary`
+- `GET /api/transactions/:id`
+- `DELETE /api/transactions/:id`
