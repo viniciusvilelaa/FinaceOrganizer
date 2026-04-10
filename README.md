@@ -1,7 +1,5 @@
 # FinaceOrganizer back-end
 Sistema web para organização financeira com React + Express Js
-=======
-# FinanceOrganizer API
 
 Esqueleto de backend com Express + Prisma + MySQL para Node 24.
 
