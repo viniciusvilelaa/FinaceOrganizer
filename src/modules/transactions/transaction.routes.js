@@ -11,6 +11,7 @@ transactionRouter.use(authMiddleware);
 transactionRouter.post("/", asyncHandler(transactionController.createTransaction));
 transactionRouter.get("/", asyncHandler(transactionController.getAllTransactions));
 transactionRouter.get("/summary", asyncHandler(transactionController.getSummary));
+transactionRouter.get("/monthlySummary", asyncHandler(transactionController.getMonthlySummary));
 transactionRouter.get("/:id", asyncHandler(transactionController.getTransactionById));
 transactionRouter.delete("/:id", asyncHandler(transactionController.deleteTransaction));
 

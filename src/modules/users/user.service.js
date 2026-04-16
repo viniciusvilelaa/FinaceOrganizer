@@ -65,6 +65,7 @@ export async function getUser(userId) {
       email: true,
       createdAt: true,
       updatedAt: true,
+      transactions: true,
     },
   });
 

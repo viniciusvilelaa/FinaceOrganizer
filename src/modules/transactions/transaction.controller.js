@@ -40,3 +40,12 @@ export const getSummary = async (req, res) => {
 
     return res.status(200).json(balances);
 };
+
+export const getMonthlySummary = async (req, res) => {
+    const userId = req.user.sub;
+    
+    const balances = await transactionService.getMonthlySummary(userId);
+
+    return res.status(200).json(balances);
+
+}

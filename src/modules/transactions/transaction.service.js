@@ -78,7 +78,7 @@ export async function deleteTransaction(userId, transactionId) {
   return { message: `Transaction ${transactionId} deleted successfully.` };
 }
 
-export async function getSummary(userId){
+export async function getSummary(userId) {
   if (!userId) {
     throw new ApiError(401, "User not authenticated.");
   }
@@ -107,6 +107,51 @@ export async function getSummary(userId){
   const totalExpense = expenseTransactions._sum.amount || 0;
   const totalBalance = totalIncome - totalExpense;
 
-  return {totalBalance, totalExpense, totalIncome}
+  return { totalBalance, totalExpense, totalIncome }
 
+}
+
+export async function getMonthlySummary(userId) {
+  const todayDate = new Date();
+
+  const initialMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+  const nextMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 1);
+
+  
+  if (!userId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
+
+  const incomeTransactions = await prisma.transaction.aggregate({
+    where: {
+      userId: Number(userId),
+      type: "INCOME",
+      date: {
+        gte: initialMonth,
+        lt: nextMonth
+      }
+    },
+    _sum: {
+      amount: true,
+    }
+  });
+
+  const expenseTransactions = await prisma.transaction.aggregate({
+    where: {
+      userId: Number(userId),
+      type: "EXPENSE",
+      date: {
+        gte: initialMonth,
+        lt: nextMonth
+      }
+    },
+    _sum: {
+      amount: true,
+    }
+  });
+
+  const totalMonthIncome = incomeTransactions._sum.amount || 0;
+  const totalMonthExpense = expenseTransactions._sum.amount || 0;
+
+  return { totalMonthExpense, totalMonthIncome}
 }
