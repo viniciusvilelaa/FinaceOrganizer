@@ -30,15 +30,62 @@ export async function createTransaction(userId, payload) {
 
 //GET ALL TRANSACTIONS
 // Lista todas as transações do usuário autenticado.
-export async function getAllTransactions(userId) {
+export async function getAllTransactions(userId, filters) {
   if (!userId) {
     throw new ApiError(401, "User not authenticated.");
   }
 
+  //Verificando se existem filtros vindo da requisicao
+  const whereClauses = {
+    userId: Number(userId)
+  };
+
+  if (filters?.category) {
+    whereClauses.category = filters.category;
+  }
+
+  if (filters?.description) {
+    whereClauses.description = {
+      contains: filters.description
+    };
+
+  }
+
+  if(filters?.type){
+    whereClauses.type = filters.type;
+  }
+
+  //Logica para filtro de data
+  if (filters?.period) {
+    const today = new Date();
+    const startDate = new Date();
+
+    switch (filters.period) {
+      case '30d':
+        startDate.setDate(today.getDate() - 30);
+        break;
+      case '3m':
+        startDate.setMonth(today.getMonth() - 3);
+        break
+      case '1y':
+        startDate.setFullYear(today.getFullYear() - 1);
+        break
+    }
+
+    whereClauses.date = {
+      gte: startDate,
+      lte: today
+    };
+
+  }
+
+
+  //Busca inteligente utilizando objeto where criado dinamicamente com filtros
   return prisma.transaction.findMany({
-    where: { userId: Number(userId) },
+    where: whereClauses,
     orderBy: { date: "desc" },
   });
+
 }
 
 //GET TRANSACTION BY ID
@@ -117,7 +164,7 @@ export async function getMonthlySummary(userId) {
   const initialMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
   const nextMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 1);
 
-  
+
   if (!userId) {
     throw new ApiError(401, "User not authenticated.");
   }
@@ -153,5 +200,5 @@ export async function getMonthlySummary(userId) {
   const totalMonthIncome = incomeTransactions._sum.amount || 0;
   const totalMonthExpense = expenseTransactions._sum.amount || 0;
 
-  return { totalMonthExpense, totalMonthIncome}
+  return { totalMonthExpense, totalMonthIncome }
 }

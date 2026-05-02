@@ -1,4 +1,5 @@
 import * as transactionService from "./transaction.service.js"
+import { transactionFiltersSchema } from "./transaction.schema.js";
 
 //Endpoint para criaçao da transaction
 export const createTransaction = async (req, res) => {
@@ -9,10 +10,19 @@ export const createTransaction = async (req, res) => {
 
 //Endpoint para getAll transactions
 export const getAllTransactions = async (req, res) => {
-  const userId = req.user.sub;
-  const transactions = await transactionService.getAllTransactions(userId);
+    const userId = req.user.sub;
+    const parsed = transactionFiltersSchema.safeParse(req.query);
 
-  return res.status(200).json(transactions);
+    if (!parsed.success) {
+        return res.status(400).json({
+            message: 'Invalid filters',
+            erros: parsed.error.flatten().fieldErrors
+        });
+    }
+
+    const transactions = await transactionService.getAllTransactions(userId, parsed.data);
+
+    return res.status(200).json(transactions);
 }
 
 //Endpoint para getById
@@ -43,7 +53,7 @@ export const getSummary = async (req, res) => {
 
 export const getMonthlySummary = async (req, res) => {
     const userId = req.user.sub;
-    
+
     const balances = await transactionService.getMonthlySummary(userId);
 
     return res.status(200).json(balances);
