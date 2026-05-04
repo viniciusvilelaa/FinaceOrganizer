@@ -51,7 +51,7 @@ export async function getAllTransactions(userId, filters) {
 
   }
 
-  if(filters?.type){
+  if (filters?.type) {
     whereClauses.type = filters.type;
   }
 
@@ -79,13 +79,21 @@ export async function getAllTransactions(userId, filters) {
 
   }
 
+  const page = Number(filters?.page) || 1;
+  const limit = Number(filters?.limit) || 10
+  const skip = (page - 1) * limit;
 
-  //Busca inteligente utilizando objeto where criado dinamicamente com filtros
-  return prisma.transaction.findMany({
-    where: whereClauses,
-    orderBy: { date: "desc" },
-  });
+  const [transactions, total] = await Promise.all([
+    prisma.transaction.findMany({
+      where: whereClauses,
+      orderBy: { date: "desc" },
+      skip,
+      take: limit
+    }),
+    prisma.transaction.count({ where: whereClauses })
+  ]);
 
+  return { transactions, total, page, limit }
 }
 
 //GET TRANSACTION BY ID
