@@ -1,3 +1,4 @@
+import { gte } from "zod";
 import { prisma } from "../../lib/prisma.js";
 import { ApiError } from "../../utils/api-error.js";
 
@@ -209,4 +210,50 @@ export async function getMonthlySummary(userId) {
   const totalMonthExpense = expenseTransactions._sum.amount || 0;
 
   return { totalMonthExpense, totalMonthIncome }
+}
+
+export async function getChartData(userId) {
+  if (!userId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
+
+  const today = new Date();
+
+  const arrayDates = Array.from({ length: 6 }, (_, i) => {
+    return new Date(today.getFullYear(), today.getMonth() - i, 1);
+  });
+
+  const chartData = await Promise.all(
+    arrayDates.map(async (date) => {
+      const startOfMonth = date;
+      const startOfNextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+      const [income, expense] = await Promise.all([
+        prisma.transaction.aggregate({
+          where: {
+            userId: Number(userId),
+            type: "INCOME",
+            date: { gte: startOfMonth, lt: startOfNextMonth }
+          },
+          _sum: { amount: true }
+        }),
+        prisma.transaction.aggregate({
+          where: {
+            userId: Number(userId),
+            type: "EXPENSE",
+            date: { gte: startOfMonth, lt: startOfNextMonth }
+          },
+          _sum: { amount: true }
+        })
+      ]);
+
+      return {
+        month: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date),
+        income: income._sum.amount || 0,
+        expense: expense._sum.amount || 0,
+      };
+    })
+  );
+
+  return chartData.reverse();
 }

@@ -59,3 +59,11 @@ export const getMonthlySummary = async (req, res) => {
     return res.status(200).json(balances);
 
 }
+
+export const getChartData = async (req, res) => {
+    const userId = req.user.sub;
+
+    const balances = await transactionService.getChartData(userId);
+
+    return res.status(200).json(balances);
+};
