@@ -10,6 +10,7 @@ const adapter = new PrismaMariaDb({
   user: decodeURIComponent(new URL(env.databaseUrl).username),
   password: decodeURIComponent(new URL(env.databaseUrl).password),
   database: new URL(env.databaseUrl).pathname.replace("/", ""),
+  allowPublicKeyRetrieval: env.nodeEnv === "development",
 });
 
 export const prisma =
