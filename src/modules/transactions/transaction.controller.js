@@ -67,3 +67,11 @@ export const getChartData = async (req, res) => {
 
     return res.status(200).json(balances);
 };
+
+export const getPizzaChart = async (req, res) => {
+    const useriId = req.user.sub;
+
+    const data = await transactionService.getPizzaChart(useriId);
+
+    return res.status(200).json(data);
+}

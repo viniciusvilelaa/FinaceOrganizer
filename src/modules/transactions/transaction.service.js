@@ -257,3 +257,25 @@ export async function getChartData(userId) {
 
   return chartData.reverse();
 }
+
+export async function getPizzaChart(userId){
+  const parsedUserId = Number(userId);
+
+  if (!parsedUserId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
+
+  const transactions = await prisma.transaction.groupBy({
+    by: ['category'],
+    where: {
+      userId: parsedUserId,
+      type: 'EXPENSE'
+    },
+    _sum: {amount: true}
+  })
+
+  return transactions.map(t => ({
+    category: t.category,
+    total: t._sum.amount || 0
+  }))
+}
