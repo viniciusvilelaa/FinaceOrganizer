@@ -62,13 +62,13 @@ export async function getAllTransactions(userId, filters) {
     const startDate = new Date();
 
     switch (filters.period) {
-      case '30d':
+      case '30 days':
         startDate.setDate(today.getDate() - 30);
         break;
-      case '3m':
+      case '3 months':
         startDate.setMonth(today.getMonth() - 3);
         break
-      case '1y':
+      case '1 year':
         startDate.setFullYear(today.getFullYear() - 1);
         break
     }
