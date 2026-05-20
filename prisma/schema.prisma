@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -32,5 +33,12 @@ enum TransactionCategory {
   COMIDA
   TRANSPORTE
   LAZER
-  
+  SAUDE
+  EDUCACAO
+  MORADIA
+  OUTROS
+  INVESTIMENTO
+  SALARIO
+  ASSINATURAS
+  COMBUSTIVEL
 }
