@@ -15,6 +15,7 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   transactions Transaction[]
+  financialGoal FinancialGoal[]
 }
 
 model Transaction {
@@ -41,4 +42,15 @@ enum TransactionCategory {
   SALARIO
   ASSINATURAS
   COMBUSTIVEL
+}
+
+model FinancialGoal{
+  id Int @id @default(autoincrement())
+  targetAmount Float
+  month Int
+  year Int
+  createdAt DateTime @default(now())
+  
+  userId Int
+  user User @relation(fields: [userId], references: [id])
 }
