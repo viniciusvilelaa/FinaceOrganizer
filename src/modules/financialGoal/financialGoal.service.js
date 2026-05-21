@@ -1,25 +1,132 @@
 import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 
+//FUNCTION TO CALCULATE STATUS
+function calculateStatus(currentAmount, targetAmount, elapsedDays, percentage) {
+    if (currentAmount >= targetAmount) {
+        return "ACHIEVED"
+    }
+    else if (currentAmount < 0) {
+        return "FAILED"
+    }
+    else if (percentage >= elapsedDays) {
+        return "ON_TRACK"
+    }
+    else {
+        return "AT_RISK"
+    }
+}
+
 //CREATE FINANCIAL GOAL
 //Cria meta financeira vinculada ao usuário
 export async function createFinancialGoal(userId, payload) {
     const { targetAmount, month, year } = payload;
 
-    if (!useriD) {
+
+    if (!userId) {
         throw new ApiError(401, "User not authenticated");
     }
 
-    if (!targetAmount || !month || !year) {
-        throw new ApiError(400, "Missing required payload")
-    }
+    const parsedUserId = Number(userId);
 
     const goalExist = await prisma.financialGoal.findFirst({
         where: {
-            userId: Number(userId),
-            month: Number(month),
-            year: Number(year)
+            userId: parsedUserId,
+            month: month,
+            year: year
         }
     });
+
+    if (goalExist) throw new ApiError(409, "A goal already exists for this period");
+
+    const financialGoal = await prisma.financialGoal.create({
+        data: {
+            targetAmount,
+            month,
+            year,
+            userId: parsedUserId
+        }
+    })
+
+    return financialGoal;
+
+}
+
+
+export async function getCurrentGoal(userId) {
+    if (!userId) throw new ApiError(401, "User not authenticated");
+
+    const parsedUserId = Number(userId);
+    const todayMonth = new Date().getMonth() + 1;
+    const todayYear = new Date().getFullYear();
+
+    const actualGoal = await prisma.financialGoal.findFirst({
+        where: {
+            userId: parsedUserId,
+            month: todayMonth,
+            year: todayYear
+        }
+    })
+
+    if (!actualGoal) throw new ApiError(404, "Actual goal not found or not exists");
+
+    const startDate = new Date(actualGoal.year, actualGoal.month - 1, 1);
+    const endDate = new Date(actualGoal.year, actualGoal.month, 1);
+
+
+    const [income, expense] = await Promise.all([
+        prisma.transaction.aggregate({
+            where: {
+                userId: parsedUserId,
+                type: "INCOME",
+                date: {
+                    gte: startDate,
+                    lt: endDate
+                }
+            },
+            _sum: {
+                amount: true,
+            }
+        }),
+        prisma.transaction.aggregate({
+            where: {
+                userId: parsedUserId,
+                type: "EXPENSE",
+                date: {
+                    gte: startDate,
+                    lt: endDate
+                }
+            },
+            _sum: {
+                amount: true,
+            }
+        })
+
+    ]);
+
+    const currentAmount = (income._sum.amount || 0) - (expense._sum.amount || 0)
+
+    const progessionPercentage = actualGoal.targetAmount > 0
+        ? (currentAmount / actualGoal.targetAmount) * 100
+        : 0;
+
+
+    const todayDay = new Date().getDate()
+    const totalDays = new Date(actualGoal.year, actualGoal.month, 0).getDate();
+
+    const elapsedDays = (todayDay / totalDays) * 100;
+
+    const status = calculateStatus(currentAmount, actualGoal.targetAmount, elapsedDays, progessionPercentage)
+
+    return {
+        id: actualGoal.id,
+        targetAmount: actualGoal.targetAmount,
+        currentAmount,
+        percentage: progessionPercentage,
+        month: actualGoal.month,
+        year: actualGoal.year,
+        status: status
+    }
+
 
 }
