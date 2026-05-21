@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const currentDate = new Date().getFullYear();
 
-export const financialGoalsSchema = z.object({
+export const financialGoalSchema = z.object({
     targetAmount: z.number({ required_error: 'Target amount is required' })
         .positive({ message: 'Target amount must be positive' }),
 
