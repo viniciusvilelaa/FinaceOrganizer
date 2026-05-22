@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { ApiError } from "../../utils/api-error";
+import { prisma } from "../../lib/prisma.js";
+import { ApiError } from "../../utils/api-error.js";
 
 //FUNCTION TO CALCULATE STATUS
 function calculateStatus(currentAmount, targetAmount, elapsedDays, percentage) {
