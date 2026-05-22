@@ -53,4 +53,7 @@ model FinancialGoal{
   
   userId Int
   user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, month, year])
+  @@unique([id, userId])
 }

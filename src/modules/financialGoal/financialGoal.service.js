@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/api-error";
 
 //FUNCTION TO CALCULATE STATUS
 function calculateStatus(currentAmount, targetAmount, elapsedDays, percentage) {
+    //Verificaçao do status atual da meta
     if (currentAmount >= targetAmount) {
         return "ACHIEVED"
     }
@@ -27,6 +28,15 @@ export async function createFinancialGoal(userId, payload) {
         throw new ApiError(401, "User not authenticated");
     }
 
+    const parsedUserId = Number(userId);
+
+    const goalExist = await prisma.financialGoal.findFirst({
+        where: {
+            userId: parsedUserId,
+            month,
+            year
+        }
+    });
 
     if (goalExist) throw new ApiError(409, "A goal already exists for this period");
 
@@ -37,7 +47,7 @@ export async function createFinancialGoal(userId, payload) {
             year,
             userId: parsedUserId
         }
-    })
+    });
 
     return financialGoal;
 
@@ -95,7 +105,7 @@ export async function getCurrentGoal(userId) {
 
     ]);
 
-    const currentAmount = (income._sum.amount || 0) - (expense._sum.amount || 0)
+    const currentAmount = Number(((income._sum.amount || 0) - (expense._sum.amount || 0)).toFixed(2));
 
     const progessionPercentage = actualGoal.targetAmount > 0
         ? (currentAmount / actualGoal.targetAmount) * 100
@@ -128,9 +138,6 @@ export async function updateGoal(userId, goalId, targetAmount) {
     if (!goalId) throw new ApiError(400, "Goal Id is required");
 
     const parsedTargetAmount = Number(targetAmount);
-    if (isNaN(parsedTargetAmount) || parsedTargetAmount < 0) throw new ApiError(400, "Target amount must be a positive number");
-
-
     const parsedUserId = Number(userId);
     const parsedGoalId = Number(goalId);
 
