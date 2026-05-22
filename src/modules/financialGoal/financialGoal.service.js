@@ -143,14 +143,27 @@ export async function updateGoal(userId, goalId, targetAmount) {
 
     if (!goal) throw new ApiError(404, "Goal not found");
 
-    return prisma.financialGoal.update({
+    return prisma.financialGoal.update({ where: { id: parsedGoalId, }, data: { targetAmount: parsedTargetAmount } });
+
+}
+
+export async function deleteGoal(userId, goalId) {
+    if (!userId) throw new ApiError(401, "User not authenticated");
+    if (!goalId) throw new ApiError(400, "Goal Id is required");
+
+    const parsedUserId = Number(userId);
+    const parsedGoalId = Number(goalId);
+
+    const goal = await prisma.financialGoal.findFirst({
         where: {
             id: parsedGoalId,
-            userId: parsedUserId
-        },
-        data: {
-            targetAmount: parsedTargetAmount
+            userId: parsedUserId,
         }
-    });
+    })
+
+    if (!goal) throw new ApiError(404, "Goal not found");
+
+    return prisma.financialGoal.delete({ where: { id: parsedGoalId } });
+
 
 }
