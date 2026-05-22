@@ -58,8 +58,8 @@ export async function getCurrentGoal(userId) {
     if (!userId) throw new ApiError(401, "User not authenticated");
 
     const parsedUserId = Number(userId);
-    const todayMonth = new Date().getMonth() + 1;
-    const todayYear = new Date().getFullYear();
+    const todayMonth = new Date().getUTCMonth() + 1;
+    const todayYear = new Date().getUTCFullYear();
 
     const actualGoal = await prisma.financialGoal.findFirst({
         where: {
@@ -71,8 +71,8 @@ export async function getCurrentGoal(userId) {
 
     if (!actualGoal) throw new ApiError(404, "Actual goal not found or not exists");
 
-    const startDate = new Date(actualGoal.year, actualGoal.month - 1, 1);
-    const endDate = new Date(actualGoal.year, actualGoal.month, 1);
+    const startDate = new Date(Date.UTC(actualGoal.year, actualGoal.month - 1, 1));
+    const endDate = new Date(Date.UTC(actualGoal.year, actualGoal.month, 1));
 
 
     const [income, expense] = await Promise.all([
@@ -112,8 +112,8 @@ export async function getCurrentGoal(userId) {
         : 0;
 
 
-    const todayDay = new Date().getDate()
-    const totalDays = new Date(actualGoal.year, actualGoal.month, 0).getDate();
+    const todayDay = new Date().getUTCDate()
+    const totalDays = new Date(Date.UTC(actualGoal.year, actualGoal.month, 0)).getUTCDate();
 
     const elapsedDays = (todayDay / totalDays) * 100;
 
@@ -150,7 +150,7 @@ export async function updateGoal(userId, goalId, targetAmount) {
 
     if (!goal) throw new ApiError(404, "Goal not found");
 
-    return prisma.financialGoal.update({ where: { id: parsedGoalId, }, data: { targetAmount: parsedTargetAmount } });
+    return prisma.financialGoal.update({ where: { id: parsedGoalId, userId: parsedUserId }, data: { targetAmount: parsedTargetAmount } });
 
 }
 
@@ -170,7 +170,7 @@ export async function deleteGoal(userId, goalId) {
 
     if (!goal) throw new ApiError(404, "Goal not found");
 
-    return prisma.financialGoal.delete({ where: { id: parsedGoalId } });
+    return prisma.financialGoal.delete({ where: { id: parsedGoalId, userId: parsedUserId } });
 
 
 }
