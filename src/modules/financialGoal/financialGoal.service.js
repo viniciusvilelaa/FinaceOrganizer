@@ -27,15 +27,6 @@ export async function createFinancialGoal(userId, payload) {
         throw new ApiError(401, "User not authenticated");
     }
 
-    const parsedUserId = Number(userId);
-
-    const goalExist = await prisma.financialGoal.findFirst({
-        where: {
-            userId: parsedUserId,
-            month: month,
-            year: year
-        }
-    });
 
     if (goalExist) throw new ApiError(409, "A goal already exists for this period");
 
@@ -125,8 +116,41 @@ export async function getCurrentGoal(userId) {
         percentage: progessionPercentage,
         month: actualGoal.month,
         year: actualGoal.year,
-        status: status
+        status
     }
 
+
+}
+
+export async function updateGoal(userId, goalId, targetAmount) {
+
+    if (!userId) throw new ApiError(401, "User not authenticated");
+    if (!goalId) throw new ApiError(400, "Goal Id is required");
+
+    const parsedTargetAmount = Number(targetAmount);
+    if (isNaN(parsedTargetAmount) || parsedTargetAmount < 0) throw new ApiError(400, "Target amount must be a positive number");
+
+
+    const parsedUserId = Number(userId);
+    const parsedGoalId = Number(goalId);
+
+    const goal = await prisma.financialGoal.findFirst({
+        where: {
+            id: parsedGoalId,
+            userId: parsedUserId,
+        }
+    })
+
+    if (!goal) throw new ApiError(404, "Goal not found");
+
+    return prisma.financialGoal.update({
+        where: {
+            id: parsedGoalId,
+            userId: parsedUserId
+        },
+        data: {
+            targetAmount: parsedTargetAmount
+        }
+    });
 
 }
