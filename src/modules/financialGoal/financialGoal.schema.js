@@ -16,4 +16,14 @@ export const financialGoalSchema = z.object({
         .min(currentDate, "Year cannot be in the past")
 
 
+});
+
+export const updateFinancialGoalSchema = z.object({
+    targetAmount: z.number({required_error: 'Target amount is required'})
+    .positive({message: 'Target amount must be positive'})
 })
+
+export const goalParamsSchema = z.object({
+    goalId: z.coerce.number().int().positive()
+
+});
