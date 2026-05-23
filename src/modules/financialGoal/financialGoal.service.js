@@ -174,3 +174,81 @@ export async function deleteGoal(userId, goalId) {
 
 
 }
+
+export async function getGoalHistory(userId) {
+    if (!userId) throw new ApiError(401, "User not authenticated");
+    const parsedUserId = Number(userId);
+    const todayMonth = new Date().getUTCMonth() + 1;
+    const todayYear = new Date().getUTCFullYear();
+
+    const goals = await prisma.financialGoal.findMany({
+        where: {
+            userId: parsedUserId,
+            OR: [{
+                year: { lt: todayYear }
+            },
+            {
+                year: todayYear,
+                month: { lt: todayMonth }
+            }]
+        },
+        orderBy: [
+            { year: "desc" },
+            { month: "desc" }
+        ],
+        take: 12
+    });
+
+    const enchancedGoals = await Promise.all(goals.map(async (goal) => {
+        const startDate = new Date(Date.UTC(goal.year, goal.month - 1, 1));
+        const endDate = new Date(Date.UTC(goal.year, goal.month, 1));
+
+        const [income, expense] = await Promise.all([
+            prisma.transaction.aggregate({
+                where: {
+                    userId: parsedUserId,
+                    type: "INCOME",
+                    date: {
+                        gte: startDate,
+                        lt: endDate
+                    }
+                },
+                _sum: {
+                    amount: true
+                }
+            }),
+
+            prisma.transaction.aggregate({
+                where: {
+                    userId: parsedUserId,
+                    type: "EXPENSE",
+                    date: {
+                        gte: startDate,
+                        lt: endDate
+                    }
+                },
+                _sum: {
+                    amount: true,
+                }
+            })
+        ]);
+
+        const currentAmount = Number(((income._sum.amount || 0) - (expense._sum.amount || 0)).toFixed(2));
+
+        const achieved = currentAmount >= goal.targetAmount
+
+        return {
+            id: goal.id,
+            targetAmount: goal.targetAmount,
+            currentAmount,
+            month: goal.month,
+            year: goal.year,
+            achieved
+        }
+
+    }));
+
+
+    return enchancedGoals
+
+}
