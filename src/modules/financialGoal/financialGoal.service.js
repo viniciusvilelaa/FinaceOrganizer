@@ -189,7 +189,7 @@ export async function getGoalHistory(userId) {
             },
             {
                 year: todayYear,
-                month: { lt: todayMonth }
+                month: { lte: todayMonth }
             }]
         },
         orderBy: [
@@ -234,8 +234,17 @@ export async function getGoalHistory(userId) {
         ]);
 
         const currentAmount = Number(((income._sum.amount || 0) - (expense._sum.amount || 0)).toFixed(2));
-
         const achieved = currentAmount >= goal.targetAmount
+        let status
+
+        if (goal.month === todayMonth && goal.year === todayYear) {
+            status = "IN_PROGRESS"
+        } else if (achieved) {
+            status = "ACHIEVED"
+        } else {
+            status = "FAILED"
+        }
+
 
         return {
             id: goal.id,
@@ -243,7 +252,8 @@ export async function getGoalHistory(userId) {
             currentAmount,
             month: goal.month,
             year: goal.year,
-            achieved
+            achieved,
+            status
         }
 
     }));
