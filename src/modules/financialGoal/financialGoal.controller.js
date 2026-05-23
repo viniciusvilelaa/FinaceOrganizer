@@ -1,5 +1,6 @@
-import * as financialService from "./financialGoal.service";
-import { financialGoalSchema } from "./financialGoal.schema";
+import * as financialGoalService from "./financialGoal.service.js";
+import { financialGoalSchema, goalParamsSchema } from "./financialGoal.schema.js";
+import { ApiError } from "../../utils/api-error.js";
 
 //Endpoint POST GOAL
 export const createFinancialGoal = async (req, res) => {
@@ -14,7 +15,7 @@ export const createFinancialGoal = async (req, res) => {
             });
         }
 
-        const financialGoal = await financialService.createFinancialGoal(userId, bodyParsed.data);
+        const financialGoal = await financialGoalService.createFinancialGoal(userId, bodyParsed.data);
 
         return res.status(201).json(financialGoal);
     } catch (error) {
@@ -22,6 +23,26 @@ export const createFinancialGoal = async (req, res) => {
             return res.status(error.statusCode).json({ message: error.message });
         } else {
             return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+}
+
+//Endpoint GET GOALS
+export const getHistoryGoal = async (req, res) => {
+
+    try {
+        const userId = req.user.sub;
+
+        const financialGoals = await financialGoalService.getGoalHistory(userId);
+
+        return res.status(200).json(financialGoals);
+
+    } catch (error) {
+        if (error instanceof ApiError) {
+            return res.status(error.statusCode).json({ message: error.message })
+        } else {
+            return res.status(500).json({ message: 'Internal server error' })
         }
     }
 
