@@ -48,3 +48,22 @@ export const getHistoryGoal = async (req, res) => {
 
 
 }
+
+//Endpoint getCurrentGoal que retorna dados da meta atual
+export const getCurrentGoal = async (req, res) => {
+    try {
+        const userId = req.user.sub;
+
+        const currentFinancialGoal = await financialGoalService.getCurrentGoal(userId);
+
+        return res.status(200).json(currentFinancialGoal);
+    } catch (error) {
+        if (error instanceof ApiError) {
+            return res.status(error.statusCode).json({ message: error.message })
+        } else {
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+
+}

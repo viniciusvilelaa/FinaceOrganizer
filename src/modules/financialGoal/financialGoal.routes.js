@@ -9,7 +9,9 @@ financialGoalRouter.use(authMiddleware);
 //Configurando endpoints
 financialGoalRouter.post("/", asyncHandler(financialGoalController.createFinancialGoal));
 financialGoalRouter.get("/history", asyncHandler(financialGoalController.getHistoryGoal));
+financialGoalRouter.get("/current", asyncHandler(financialGoalController.getCurrentGoal));
 
 
 
-export {financialGoalRouter}
+
+export { financialGoalRouter }
