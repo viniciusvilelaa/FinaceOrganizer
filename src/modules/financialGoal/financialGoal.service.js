@@ -119,7 +119,7 @@ export async function getCurrentGoal(userId) {
 
     const status = calculateStatus(currentAmount, actualGoal.targetAmount, elapsedDays, progessionPercentage)
 
-    return {
+    const currentFinancialGoal = {
         id: actualGoal.id,
         targetAmount: actualGoal.targetAmount,
         currentAmount,
@@ -128,6 +128,8 @@ export async function getCurrentGoal(userId) {
         year: actualGoal.year,
         status
     }
+
+    return currentFinancialGoal
 
 
 }
