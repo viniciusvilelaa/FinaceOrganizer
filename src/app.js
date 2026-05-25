@@ -12,7 +12,7 @@ const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: {error: 'Too many HTTP requests, try again later'},
+  message: { error: 'Too many HTTP requests, try again later' },
   standardHeaders: true,
   legacyHeaders: true
 });
@@ -35,9 +35,10 @@ app.use(cors({
 app.use(morgan(env.nodeEnv === "production" ? "combined" : "dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use("/api", router);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
+
+
+app.use("/api", router);
 
 export { app };

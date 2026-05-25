@@ -5,7 +5,7 @@ import { ApiError } from "../utils/api-error.js";
 export function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
     throw new ApiError(401, "Missing or invalid authorization header.");
   }
 

@@ -21,7 +21,7 @@ export async function createUser({ name, email, password }) {
     throw new ApiError(409, "Email is already in use.");
   }
 
-  // Hash da senha antes de persistir no banco.
+  // Hash da senha
   const passwordHash = await bcrypt.hash(password, env.bcryptSaltRounds);
 
   // Cria usuário e retorna apenas campos públicos.
