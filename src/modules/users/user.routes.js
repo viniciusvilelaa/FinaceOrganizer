@@ -11,6 +11,7 @@ userRouter.get("/me", authMiddleware, asyncHandler(userController.getMe));
 userRouter.post("/", asyncHandler(userController.createUser));
 
 userRouter.post("/login", asyncHandler(userController.loginUser));
+userRouter.post("/logout", asyncHandler(userController.logoutUser));
 
 
 export {userRouter}
