@@ -62,13 +62,13 @@ export async function getAllTransactions(userId, filters) {
     const startDate = new Date();
 
     switch (filters.period) {
-      case '30 days':
+      case '30d':
         startDate.setDate(today.getDate() - 30);
         break;
-      case '3 months':
+      case '3m':
         startDate.setMonth(today.getMonth() - 3);
         break
-      case '1 year':
+      case '1y':
         startDate.setFullYear(today.getFullYear() - 1);
         break
     }
@@ -81,7 +81,7 @@ export async function getAllTransactions(userId, filters) {
   }
 
   const page = Number(filters?.page) || 1;
-  const limit = Number(filters?.limit) || 10
+  const limit = Number(filters?.limit) || 5
   const skip = (page - 1) * limit;
 
   const [transactions, total] = await Promise.all([
@@ -258,7 +258,7 @@ export async function getChartData(userId) {
   return chartData.reverse();
 }
 
-export async function getPizzaChart(userId){
+export async function getPizzaChart(userId) {
   const parsedUserId = Number(userId);
 
   if (!parsedUserId) {
@@ -271,7 +271,7 @@ export async function getPizzaChart(userId){
       userId: parsedUserId,
       type: 'EXPENSE'
     },
-    _sum: {amount: true}
+    _sum: { amount: true }
   })
 
   return transactions.map(t => ({
