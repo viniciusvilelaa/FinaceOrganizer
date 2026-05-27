@@ -3,19 +3,22 @@ import { env } from "../config/env.js";
 import { ApiError } from "../utils/api-error.js";
 
 export function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const auth_token = req.cookies['auth_token'];
 
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
-    throw new ApiError(401, "Missing or invalid authorization header.");
+  if(!auth_token){
+    throw new ApiError(401, "User not authenticated");
   }
 
-  const token = authHeader.split(" ")[1];
+  try{
+    const decoded = jwt.verify(auth_token, process.env.JWT_SECRET);
 
-  try {
-    const payload = jwt.verify(token, env.jwtSecret);
-    req.user = payload;
-    return next();
+    req.user = {
+      id: decoded.sub,
+      email: decoded.email
+    }
+
+    return next()
   } catch {
-    throw new ApiError(401, "Invalid or expired token.");
+    throw new ApiError(401, "Invalid or expired token");
   }
 }
