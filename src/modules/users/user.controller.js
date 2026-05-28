@@ -5,11 +5,11 @@ function getCookieOptions() {
   const isProd = process.env.NODE_ENV === 'production'
 
   return {
-    httpOnly: true,               // JS não consegue ler — proteção contra XSS
-    secure: isProd,               // Só HTTPS em produção
-    sameSite: 'lax',              // Proteção contra CSRF
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias em milissegundos
-    path: '/',                    // Válido para todas as rotas
+    httpOnly: true,               
+    secure: isProd,               
+    sameSite: 'lax',              
+    maxAge: 1000 * 60 * 60 * 24 * 7, 
+    path: '/',                    
   }
 }
 
