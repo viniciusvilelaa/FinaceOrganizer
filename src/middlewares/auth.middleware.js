@@ -8,16 +8,16 @@ export function authMiddleware(req, res, next) {
   const auth_token = req.cookies['auth_token'];
 
   //Verifica se existe o token
-  if(!auth_token){
+  if (!auth_token) {
     throw new ApiError(401, "User not authenticated");
   }
-  
+
   //Try para decodificar o jwt e passar payload do user
-  try{
+  try {
     const decoded = jwt.verify(auth_token, process.env.JWT_SECRET);
 
     req.user = {
-      id: decoded.sub,
+      sub: decoded.sub,
       email: decoded.email
     }
 

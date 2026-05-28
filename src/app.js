@@ -14,7 +14,7 @@ const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  message: {error: 'Too many HTTP requests, try again later'},
+  message: { error: 'Too many HTTP requests, try again later' },
   standardHeaders: true,
   legacyHeaders: true
 });
@@ -29,12 +29,15 @@ app.use('/api/users/login', authLimiter)
 app.use(limiter);
 
 app.disable("x-powered-by");
-app.use(helmet());
 app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-  methods: ['POST', 'GET', 'PUT', 'DELETE']
+  origin: ["http://localhost:5173",
+    "http://localhost:3000"
+  ],
+  credentials: true
+  //methods: ['POST', 'GET', 'PUT', 'DELETE']
 }));
+
+
 app.use(morgan(env.nodeEnv === "production" ? "combined" : "dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

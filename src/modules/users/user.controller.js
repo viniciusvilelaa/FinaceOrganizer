@@ -5,11 +5,11 @@ function getCookieOptions() {
   const isProd = process.env.NODE_ENV === 'production'
 
   return {
-    httpOnly: true,               
-    secure: isProd,               
-    sameSite: 'lax',              
-    maxAge: 1000 * 60 * 60 * 24 * 7, 
-    path: '/',                    
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    path: '/',
   }
 }
 
@@ -36,9 +36,9 @@ export const loginUser = async (req, res) => {
 
 //HTTP REQUEST USER LOGOUT
 export const logoutUser = async (req, res) => {
-    res.cookie("auth_token", '', {...getCookieOptions(), maxAge: 0});
+  res.cookie("auth_token", '', { ...getCookieOptions(), maxAge: 0 });
 
-    return res.status(200).json({message: "Successful logout"});
+  return res.status(200).json({ message: "Successful logout" });
 
 }
 

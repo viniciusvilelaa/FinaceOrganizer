@@ -15,8 +15,4 @@ router.use("/users", userRouter);
 router.use("/transactions", transactionRouter);
 router.use("/goals", financialGoalRouter);
 
-router.get("/me", authMiddleware, (req, res) => {
-  return res.status(200).json({ user: req.user });
-});
-
 export { router };
