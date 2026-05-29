@@ -108,9 +108,10 @@ export async function getCurrentGoal(userId) {
 
     const currentAmount = Number(((income._sum.amount || 0) - (expense._sum.amount || 0)).toFixed(2));
 
-    const progessionPercentage = actualGoal.targetAmount > 0
-        ? (currentAmount / actualGoal.targetAmount) * 100
+    let progessionPercentage = actualGoal.targetAmount > 0
+        ? Math.min((currentAmount / actualGoal.targetAmount) * 100, 100)
         : 0;
+
 
 
     const todayDay = new Date().getUTCDate()
