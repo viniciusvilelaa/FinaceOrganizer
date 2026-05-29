@@ -46,10 +46,11 @@ enum TransactionCategory {
 
 model FinancialGoal{
   id Int @id @default(autoincrement())
+  name         String
   targetAmount Float
-  month Int
-  year Int
-  createdAt DateTime @default(now())
+  month        Int
+  year         Int
+  createdAt    DateTime @default(now())
   
   userId Int
   user User @relation(fields: [userId], references: [id])

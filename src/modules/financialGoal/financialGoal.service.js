@@ -21,7 +21,7 @@ function calculateStatus(currentAmount, targetAmount, elapsedDays, percentage) {
 //CREATE FINANCIAL GOAL
 //Cria meta financeira vinculada ao usuário
 export async function createFinancialGoal(userId, payload) {
-    const { targetAmount, month, year } = payload;
+    const { name, targetAmount, month, year } = payload;
 
 
     if (!userId) {
@@ -42,6 +42,7 @@ export async function createFinancialGoal(userId, payload) {
 
     const financialGoal = await prisma.financialGoal.create({
         data: {
+            name,
             targetAmount,
             month,
             year,
@@ -121,6 +122,7 @@ export async function getCurrentGoal(userId) {
 
     const currentFinancialGoal = {
         id: actualGoal.id,
+        name: actualGoal.name,
         targetAmount: actualGoal.targetAmount,
         currentAmount,
         percentage: progessionPercentage,
@@ -134,12 +136,12 @@ export async function getCurrentGoal(userId) {
 
 }
 
-export async function updateGoal(userId, goalId, targetAmount) {
+export async function updateGoal(userId, goalId, payload) {
+    const { name, targetAmount } = payload;
 
     if (!userId) throw new ApiError(401, "User not authenticated");
     if (!goalId) throw new ApiError(400, "Goal Id is required");
 
-    const parsedTargetAmount = Number(targetAmount);
     const parsedUserId = Number(userId);
     const parsedGoalId = Number(goalId);
 
@@ -152,8 +154,14 @@ export async function updateGoal(userId, goalId, targetAmount) {
 
     if (!goal) throw new ApiError(404, "Goal not found");
 
-    return prisma.financialGoal.update({ where: { id: parsedGoalId, userId: parsedUserId }, data: { targetAmount: parsedTargetAmount } });
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (targetAmount !== undefined) updateData.targetAmount = Number(targetAmount);
 
+    return prisma.financialGoal.update({
+        where: { id: parsedGoalId, userId: parsedUserId },
+        data: updateData
+    });
 }
 
 export async function deleteGoal(userId, goalId) {
@@ -250,6 +258,7 @@ export async function getGoalHistory(userId) {
 
         return {
             id: goal.id,
+            name: goal.name,
             targetAmount: goal.targetAmount,
             currentAmount,
             month: goal.month,
