@@ -70,7 +70,9 @@ export async function getCurrentGoal(userId) {
         }
     })
 
-    if (!actualGoal) throw new ApiError(404, "Actual goal not found or not exists");
+    if (!actualGoal){
+        return null
+    };
 
     const startDate = new Date(Date.UTC(actualGoal.year, actualGoal.month - 1, 1));
     const endDate = new Date(Date.UTC(actualGoal.year, actualGoal.month, 1));

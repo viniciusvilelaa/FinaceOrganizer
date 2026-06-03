@@ -56,6 +56,10 @@ export const getCurrentGoal = async (req, res) => {
 
         const currentFinancialGoal = await financialGoalService.getCurrentGoal(userId);
 
+        if (!currentFinancialGoal){
+            return res.status(200).json(null);
+        }
+
         return res.status(200).json(currentFinancialGoal);
     } catch (error) {
         if (error instanceof ApiError) {
