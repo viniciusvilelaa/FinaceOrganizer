@@ -28,3 +28,11 @@ export const updateFinancialGoalSchema = z.object({
 export const goalParamsSchema = z.object({
     goalId: z.coerce.number().int().positive()
 });
+
+export const goalFiltersSchema = z.object({
+    status: z.enum(['ACHIEVED', 'FAILED']).optional(),
+    month: z.number().int("Month must be an integer").min(1, "Month must be at least 1").max(12, "Month must be at most 12").optional(),
+    year: z.number().int("Year must be an integer").optional(),
+    page: z.string().optional(),
+    limit: z.string.optional()
+})
