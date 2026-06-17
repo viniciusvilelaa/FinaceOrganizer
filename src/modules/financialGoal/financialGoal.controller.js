@@ -1,5 +1,5 @@
 import * as financialGoalService from "./financialGoal.service.js";
-import { financialGoalSchema, goalParamsSchema } from "./financialGoal.schema.js";
+import { financialGoalSchema, goalFiltersSchema, goalParamsSchema } from "./financialGoal.schema.js";
 import { ApiError } from "../../utils/api-error.js";
 
 //Endpoint POST GOAL
@@ -30,22 +30,19 @@ export const createFinancialGoal = async (req, res) => {
 
 //Endpoint GET GOALS
 export const getHistoryGoal = async (req, res) => {
+    const userId = req.user.sub;
+    const parsedFilters = goalFiltersSchema.safeParse(req.query);
 
-    try {
-        const userId = req.user.sub;
-
-        const financialGoals = await financialGoalService.getGoalHistory(userId);
-
-        return res.status(200).json(financialGoals);
-
-    } catch (error) {
-        if (error instanceof ApiError) {
-            return res.status(error.statusCode).json({ message: error.message })
-        } else {
-            return res.status(500).json({ message: 'Internal server error' })
-        }
+    if (!parsedFilters.success) {
+        return res.status(400).json({
+            message: 'Invalid filters',
+            erros: parsedFilters.error.flatten().fieldErrors
+        });
     }
 
+    const historyGoals = await financialGoalService.getGoalHistory(userId, parsedFilters.data);
+
+    return res.status(200).json(historyGoals);
 
 }
 
@@ -56,7 +53,7 @@ export const getCurrentGoal = async (req, res) => {
 
         const currentFinancialGoal = await financialGoalService.getCurrentGoal(userId);
 
-        if (!currentFinancialGoal){
+        if (!currentFinancialGoal) {
             return res.status(200).json(null);
         }
 
