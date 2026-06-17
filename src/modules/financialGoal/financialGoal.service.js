@@ -70,7 +70,7 @@ export async function getCurrentGoal(userId) {
         }
     })
 
-    if (!actualGoal){
+    if (!actualGoal) {
         return null
     };
 
@@ -188,29 +188,38 @@ export async function deleteGoal(userId, goalId) {
 
 }
 
-export async function getGoalHistory(userId) {
+export async function getGoalHistory(userId, filters) {
     if (!userId) throw new ApiError(401, "User not authenticated");
     const parsedUserId = Number(userId);
     const todayMonth = new Date().getUTCMonth() + 1;
     const todayYear = new Date().getUTCFullYear();
 
-    const goals = await prisma.financialGoal.findMany({
-        where: {
-            userId: parsedUserId,
-            OR: [{
-                year: { lt: todayYear }
-            },
-            {
-                year: todayYear,
-                month: { lte: todayMonth }
-            }]
-        },
-        orderBy: [
-            { year: "desc" },
-            { month: "desc" }
-        ],
-        take: 12
-    });
+    const whereClauses = {
+        userId: parsedUserId
+    }
+    if (filters?.month) {
+        whereClauses.month = filters.month
+    }
+    if (filters?.year) {
+        whereClauses.year = filters.year
+    }
+
+    const page = Number(filters?.page) || 1;
+    const limit = Number(filters?.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const [goals, total] = await Promise.all([
+        prisma.financialGoal.findMany({
+            where: whereClauses,
+            orderBy: [
+                { year: "desc" },
+                { month: "desc" }
+            ],
+            skip,
+            take: limit
+        }),
+        prisma.financialGoal.count({ where: whereClauses })
+    ]);
 
     const enchancedGoals = await Promise.all(goals.map(async (goal) => {
         const startDate = new Date(Date.UTC(goal.year, goal.month - 1, 1));
@@ -273,6 +282,6 @@ export async function getGoalHistory(userId) {
     }));
 
 
-    return enchancedGoals
+    return { enchancedGoals, total, page, limit }
 
 }
