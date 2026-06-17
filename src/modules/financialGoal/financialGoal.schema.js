@@ -31,7 +31,7 @@ export const goalParamsSchema = z.object({
 
 export const goalFiltersSchema = z.object({
     name: z.string().optional(),
-    month: z.number().int("Month must be an integer").min(1, "Month must be at least 1").max(12, "Month must be at most 12").optional(),
+    month: z.coerce.number().int("Month must be an integer").min(1, "Month must be at least 1").max(12, "Month must be at most 12").optional(),
     year: z.number().int("Year must be an integer").optional(),
     page: z.string().optional(),
     limit: z.string().optional()

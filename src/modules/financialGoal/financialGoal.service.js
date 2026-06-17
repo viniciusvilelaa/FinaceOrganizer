@@ -197,6 +197,11 @@ export async function getGoalHistory(userId, filters) {
     const whereClauses = {
         userId: parsedUserId
     }
+    if(filters?.name){
+        whereClauses.name = {
+            contains: filters.name
+        }
+    }
     if (filters?.month) {
         whereClauses.month = filters.month
     }
