@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CreateTransactionSchema = z.object({
+export const transactionCreateSchema = z.object({
     amount: z.coerce.int({required_error: 'Amount is required'}),
     type: z.enum(['INCOME', 'EXPENSE'], {required_error: "Type is required"}),
     category: z.enum(['COMIDA', 'TRANSPORTE', 'LAZER', 'SAUDE', 'EDUCACAO', 'MORADIA', 'OUTROS', 'INVESTIMENTO', 'SALARIO', 'ASSINATURAS', 'COMBUSTIVEL']),

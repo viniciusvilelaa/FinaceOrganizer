@@ -1,11 +1,31 @@
 import * as transactionService from "./transaction.service.js";
-import { transactionFiltersSchema } from "./transaction.schema.js";
+import { transactionFiltersSchema, transactionCreateSchema } from "./transaction.schema.js";
+import { ApiError } from "../../utils/api-error.js";
 
 //Endpoint para criaçao da transaction
 export const createTransaction = async (req, res) => {
-    const userId = req.user.sub;
-    const transaction = await transactionService.createTransaction(userId, req.body);
-    return res.status(201).json(transaction);
+    try {
+        const userId = req.user.sub;
+        const bodyParsed = transactionCreateSchema.safeParse(req.body);
+
+        if (!bodyParsed.success) {
+            return res.status(400).json({
+                message: 'Invalid inputs for create a transaction',
+                error: bodyParsed.error.flatten().fieldErrors
+            });
+        }
+
+        const transaction = await transactionService.createTransaction(userId, bodyParsed)
+
+        return res.status(201).json(transaction);
+    } catch (error) {
+        if (error instanceof ApiError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        } else {
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
 }
 
 //Endpoint para getAll transactions
