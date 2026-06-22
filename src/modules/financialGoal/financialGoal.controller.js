@@ -36,7 +36,7 @@ export const getHistoryGoal = async (req, res) => {
     if (!parsedFilters.success) {
         return res.status(400).json({
             message: 'Invalid filters',
-            erros: parsedFilters.error.flatten().fieldErrors
+            error: parsedFilters.error.flatten().fieldErrors
         });
     }
 
