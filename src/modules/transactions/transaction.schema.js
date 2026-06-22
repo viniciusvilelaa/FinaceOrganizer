@@ -1,7 +1,7 @@
 import { z } from 'zod';
 const categories = [
   'COMIDA', 'TRANSPORTE', 'LAZER', 'SAUDE', 'EDUCACAO', 
-  'MORADIA', 'OUTROS', 'INVESTIMENTO', 'SALARIO', 'ASSINATURAS', 'COMBUSTIVEL'
+  'MORADIA', 'OUTROS', 'INVESTIMENTO', 'SALARIO', 'ASSINATURA', 'COMBUSTIVEL'
 ];
 
 export const transactionCreateSchema = z.object({

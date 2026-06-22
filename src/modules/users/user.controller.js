@@ -67,7 +67,6 @@ export const loginUser = async (req, res) => {
 
     return res.status(500).json({ message: 'Internal server error' });
   }
-  
 }
 
 //HTTP REQUEST USER LOGOUT
