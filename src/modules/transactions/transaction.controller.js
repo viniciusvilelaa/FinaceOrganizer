@@ -15,7 +15,7 @@ export const createTransaction = async (req, res) => {
             });
         }
 
-        const transaction = await transactionService.createTransaction(userId, bodyParsed)
+        const transaction = await transactionService.createTransaction(userId, bodyParsed.data)
 
         return res.status(201).json(transaction);
     } catch (error) {
@@ -36,7 +36,7 @@ export const getAllTransactions = async (req, res) => {
     if (!parsed.success) {
         return res.status(400).json({
             message: 'Invalid filters',
-            erros: parsed.error.flatten().fieldErrors
+            error: parsed.error.flatten().fieldErrors
         });
     }
 
