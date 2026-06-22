@@ -1,4 +1,6 @@
+import { ApiError } from "../../utils/api-error.js"
 import * as userServices from "../users/user.service.js"
+import { userCreateSchema, userLoginSchema } from "./user.schema.js"
 
 //Helper para nao repetir codigo em login/logout/register
 function getCookieOptions() {
@@ -16,22 +18,56 @@ function getCookieOptions() {
 
 //HTTP REQUEST POST
 export const createUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const { user, token } = await userServices.createUser({ name, email, password });
+  try {
+    const bodyParsed = userCreateSchema.safeParse(req.body);
 
-  res.cookie("auth_token", token, getCookieOptions());
+    if (!bodyParsed.success) {
+      return res.status(400).json({
+        message: 'Invalid inputs for create a user',
+        error: bodyParsed.error.flatten().fieldErrors
+      });
+    }
 
-  return res.status(201).json({ user });
+    const { user, token } = await userServices.createUser(bodyParsed.data);
+
+    res.cookie("auth_token", token, getCookieOptions());
+
+    return res.status(201).json({ user });
+
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: "Internal server error" });
+  }
 }
 
 //HTTP REQUEST LOGIN
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  const { user, token } = await userServices.loginUser({ email, password });
+  try {
+    const bodyParsed = userLoginSchema.safeParse(req.body);
 
-  res.cookie("auth_token", token, getCookieOptions());
+    if (!bodyParsed.success) {
+      return res.status(400).json({
+        message: 'Invalid inputs for login',
+        error: bodyParsed.error.flatten().fieldErrors
+      });
+    }
+    const { user, token } = await userServices.loginUser(bodyParsed.data);
 
-  return res.status(200).json({ user });
+    res.cookie("auth_token", token, getCookieOptions());
+
+    return res.status(200).json({ user });
+
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+  
 }
 
 //HTTP REQUEST USER LOGOUT
