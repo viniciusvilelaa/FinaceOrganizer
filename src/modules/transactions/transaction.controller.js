@@ -1,5 +1,6 @@
 import * as transactionService from "./transaction.service.js";
 import { transactionFiltersSchema, transactionCreateSchema } from "./transaction.schema.js";
+import * as pdfService from './pdf.service.js';
 import { ApiError } from "../../utils/api-error.js";
 
 //Endpoint para criaçao da transaction
@@ -71,6 +72,7 @@ export const getSummary = async (req, res) => {
     return res.status(200).json(balances);
 };
 
+//Endpoint for MonthlySummary
 export const getMonthlySummary = async (req, res) => {
     const userId = req.user.sub;
 
@@ -95,3 +97,39 @@ export const getPizzaChart = async (req, res) => {
 
     return res.status(200).json(data);
 }
+
+export const exportTransactionPDF = async (req, res) => {
+    try {
+        const userId = req.user.sub;
+        const bodyParsed = transactionFiltersSchema.safeParse(req.query)
+
+        if (!bodyParsed.success) {
+            return res.status(400).json({
+                message: 'Invalid filters for export',
+                error: bodyParsed.error.flatten().fieldErrors
+            });
+        }
+
+        const filers = {
+            ...bodyParsed.data,
+            limit: 100000,
+            page: 1
+        }
+
+        const { transactions } = await transactionService.getAllTransactions(userId, filters);
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "attachment; filename=transactions.pdf");
+
+        const pdfStream = pdfService.buildTransactionsPDF(transactions);
+
+        pdfStream.pipe(res);
+
+    } catch (err) {
+        if(err instanceof ApiError){
+            return res.status(err.statusCode).json({message: err.message});
+        }else{
+            return res.status(500).json({message: "Internal server error"});
+        }
+    }
+}; 
