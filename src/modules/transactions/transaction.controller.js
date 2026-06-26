@@ -1,5 +1,6 @@
 import * as transactionService from "./transaction.service.js";
 import { transactionFiltersSchema, transactionCreateSchema } from "./transaction.schema.js";
+import PDFDocument from 'pdfkit';
 import * as pdfService from './pdf.service.js';
 import { ApiError } from "../../utils/api-error.js";
 
@@ -98,11 +99,13 @@ export const getPizzaChart = async (req, res) => {
     return res.status(200).json(data);
 }
 
+//Endpoint para download do relatorio de transacoes
 export const exportTransactionPDF = async (req, res) => {
     try {
         const userId = req.user.sub;
         const bodyParsed = transactionFiltersSchema.safeParse(req.query)
 
+        //Verifica os filtros
         if (!bodyParsed.success) {
             return res.status(400).json({
                 message: 'Invalid filters for export',
@@ -110,26 +113,29 @@ export const exportTransactionPDF = async (req, res) => {
             });
         }
 
-        const filers = {
+        const filters = {
             ...bodyParsed.data,
             limit: 100000,
             page: 1
         }
 
-        const { transactions } = await transactionService.getAllTransactions(userId, filters);
 
+        const { transactions } = await transactionService.getAllTransactions(userId, filters);
+        
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", "attachment; filename=transactions.pdf");
 
-        const pdfStream = pdfService.buildTransactionsPDF(transactions);
+        const doc = new PDFDocument({size: 'A4', margin: 50});
+        doc.pipe(res);
+        pdfService.buildTransactionsPDF(doc, transactions);
 
-        pdfStream.pipe(res);
+        doc.end();
 
     } catch (err) {
-        if(err instanceof ApiError){
-            return res.status(err.statusCode).json({message: err.message});
-        }else{
-            return res.status(500).json({message: "Internal server error"});
+        if (err instanceof ApiError) {
+            return res.status(err.statusCode).json({ message: err.message });
+        } else {
+            return res.status(500).json({ message: "Internal server error" });
         }
     }
 }; 

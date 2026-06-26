@@ -1,18 +1,15 @@
-import PDFDocument, { table } from 'pdfkit';
+import PDFDocument from 'pdfkit';
 
 //Function to build the PDF with transactions
-export const buildTransactionsPDF = (transactions) => {
-
-    //Create PDFKIT instance
-    const doc = new PDFDocument({size: 'A4', margin: 50});
+export const buildTransactionsPDF = (doc ,transactions) => {
 
     //PDF Header
     doc.fontSize(20).fillColor("#2c3e50").text("Transactions report", {align: 'left'});
-    doc.fontSize(10).fillColor("7f8c8d").text(`Generated at: ${new Date().toLocaleDateString('pt-BR')}`, {align: 'left'});
+    doc.fontSize(10).fillColor("#7f8c8d").text(`Generated at: ${new Date().toLocaleDateString('pt-BR')}`, {align: 'left'});
     doc.moveDown();
 
     //Horizontal line diviser
-    doc.moveTo(50, doc.y).lineTo(545, doc.y),strokeColor('#bdc3c7').stroke();
+    doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor('#bdc3c7').stroke();
     doc.moveDown(1.5);
 
     //Table Header
@@ -37,7 +34,7 @@ export const buildTransactionsPDF = (transactions) => {
             currentY = 50;
         }
 
-        const formattedDate = new Date(transaction.date).toDateString('pt-BR');
+        const formattedDate = new Date(transaction.date).toLocaleDateString('pt-BR');
         const formattedAmount = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'}).format(transaction.amount);
 
         const isIncome = transaction.type === 'INCOME';
@@ -58,8 +55,6 @@ export const buildTransactionsPDF = (transactions) => {
         currentY += 25;
     });
 
-    //Finish doc writting
-    doc.end();
 
     return doc;
 
