@@ -31,7 +31,8 @@ app.use(limiter);
 app.disable("x-powered-by");
 app.use(cors({
   origin: ["http://localhost:5173",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://finaceorganizer.onrender.com"
   ],
   credentials: true
   //methods: ['POST', 'GET', 'PUT', 'DELETE']
