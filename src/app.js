@@ -30,9 +30,9 @@ app.use(limiter);
 
 app.disable("x-powered-by");
 app.use(cors({
-  origin: env.nodeEnv === "production"
-    ? env.corsOrigin
-    : ["http://localhost:5173", "http://localhost:3000"],
+  origin: env.nodeEnv === "production" 
+  ? env.corsOrigin 
+  : ["http://localhost:5173", "http://localhost:3000"],
   credentials: true
   //methods: ['POST', 'GET', 'PUT', 'DELETE']
 }));
