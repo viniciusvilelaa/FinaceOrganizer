@@ -40,7 +40,7 @@ enum TransactionCategory {
   OUTROS
   INVESTIMENTO
   SALARIO
-  ASSINATURAS
+  ASSINATURA
   COMBUSTIVEL
 }
 
