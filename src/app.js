@@ -29,6 +29,7 @@ app.use('/api/users/login', authLimiter)
 app.use(limiter);
 
 app.disable("x-powered-by");
+
 app.use(cors({
   origin: env.nodeEnv === "production" 
   ? env.corsOrigin 
