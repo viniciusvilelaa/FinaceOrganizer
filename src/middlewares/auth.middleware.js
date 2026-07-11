@@ -25,4 +25,6 @@ export function authMiddleware(req, res, next) {
   } catch {
     throw new ApiError(401, "Invalid or expired token");
   }
+
+  
 }
