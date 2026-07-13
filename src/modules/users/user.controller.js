@@ -81,7 +81,7 @@ export const logoutUser = async (req, res) => {
 export async function getUsers(req, res, next) {
 
   const users = await userServices.getAllUsers();
-  return res.status(200).json(users);
+  return res.status(200).json({users});
 }
 
 //HTTP REQUEST GET /ME
