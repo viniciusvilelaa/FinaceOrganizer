@@ -89,6 +89,6 @@ export const getMe = async (req, res) => {
   const userId = req.user?.sub;
   const user = await userServices.getMe(userId);
 
-  return res.status(200).json(user);
+  return res.status(200).json({user});
 }
 
