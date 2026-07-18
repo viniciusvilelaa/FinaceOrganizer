@@ -7,7 +7,7 @@ const categories = [
 export const transactionCreateSchema = z.object({
     amount: z.coerce.number({required_error: 'Amount is required'}),
     type: z.enum(['INCOME', 'EXPENSE'], {required_error: "Type is required"}),
-    category: z.enum(categories, {required_error: 'Category is required'}),
+    category: z.coerce.number({required_error: 'Transaction Category is required'}),
     description: z.string({required_error: 'Description is required'}).min(1),
     date: z.coerce.date({required_error: 'Date is required'})
 })
