@@ -10,14 +10,15 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "db:seed-demo": "node scripts/seed-demo-data.js"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^6.19.3",
+    "@prisma/client": "6.15.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -32,8 +33,15 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.5.0",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.3",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true,
+    "@prisma/client@6.15.0": true,
+    "@prisma/engines@6.19.3": true,
+    "prisma@6.19.3": true
   }
 }
