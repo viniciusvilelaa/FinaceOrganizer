@@ -47,19 +47,6 @@ model Category {
   @@unique([userId, name])
 }
 
-enum TransactionCategory {
-  COMIDA
-  TRANSPORTE
-  LAZER
-  SAUDE
-  EDUCACAO
-  MORADIA
-  OUTROS
-  INVESTIMENTO
-  SALARIO
-  ASSINATURA
-  COMBUSTIVEL
-}
 
 model FinancialGoal{
   id Int @id @default(autoincrement())

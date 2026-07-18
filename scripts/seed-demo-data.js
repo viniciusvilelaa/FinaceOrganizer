@@ -12,19 +12,21 @@ async function main() {
 
   console.log("📂 Cadastrando categorias padrões do sistema...");
   for (const catName of defaultCategories) {
-    await prisma.category.upsert({
+    const existing = await prisma.category.findFirst({
       where: {
-        userId_name: {
-          userId: null,
-          name: catName,
-        },
-      },
-      update: {}, // Não altera nada se já existir
-      create: {
-        name: catName,
         userId: null,
+        name: catName,
       },
     });
+
+    if (!existing) {
+      await prisma.category.create({
+        data: {
+          name: catName,
+          userId: null,
+        },
+      });
+    }
   }
 
   // Mapear categorias salvas para obter seus IDs dinamicamente
