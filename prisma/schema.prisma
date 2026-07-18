@@ -16,6 +16,7 @@ model User {
   updatedAt    DateTime      @updatedAt
   transactions Transaction[]
   financialGoal FinancialGoal[]
+  categories    Category[]
 }
 
 model Transaction {
