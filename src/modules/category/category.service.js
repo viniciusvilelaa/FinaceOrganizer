@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { Prisma } from "@prisma/client";
 import { ApiError } from "../../utils/api-error.js";
+import { notFoundMiddleware } from "../../middlewares/not-found.middleware.js";
 
 function sortCategories(categories) {
   return categories.sort((a, b) => {
@@ -76,4 +77,27 @@ export async function findUsableCategory(userId, categoryId) {
   } else {
     throw new ApiError(403, "You don't have acess to this category");
   }
+}
+
+//Find a category created by user
+export async function findOwnedCategory(userId, categoryId){
+    if(!userId){
+        throw new ApiError(401, 'User not authenticated.');
+    }
+
+    const category = await prisma.category.findUnique({
+        where: {
+            id: categoryId
+        }
+    });
+
+    if(!category){
+        throw new ApiError(404, 'Category not found');
+    }
+
+    if(category.userId === userId){
+        return category
+    }else{
+        throw new ApiError(403, "You don't have permission to acess this category");
+    }
 }
