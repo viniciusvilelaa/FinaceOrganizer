@@ -38,3 +38,22 @@ export async function createCategory(userId, payload) {
 }
 
 
+//Get all category, system and user.
+export async function getAllCategoriesForUser(userId) {
+  if (!userId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
+
+  const categories = await prisma.category.findMany({
+    where: {
+      OR: [
+        { userId: userId }, // Campo preenchido
+        { userId: null }, // Campo nulo
+      ],
+    }
+  });
+
+  
+
+  return sortCategories(categories);
+}
