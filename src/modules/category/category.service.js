@@ -37,7 +37,6 @@ export async function createCategory(userId, payload) {
   }
 }
 
-
 //Get all category, system and user.
 export async function getAllCategoriesForUser(userId) {
   if (!userId) {
@@ -50,10 +49,31 @@ export async function getAllCategoriesForUser(userId) {
         { userId: userId }, // Campo preenchido
         { userId: null }, // Campo nulo
       ],
-    }
+    },
   });
 
-  
-
   return sortCategories(categories);
+}
+
+//Find user usable categories
+export async function findUsableCategory(userId, categoryId) {
+  if (!userId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
+
+  const category = await prisma.category.findUnique({
+    where: {
+      id: categoryId,
+    },
+  });
+
+  if (!category) {
+    throw new ApiError(404, "Category not found");
+  }
+
+  if (category.userId === userId || category.userId === null) {
+    return category;
+  } else {
+    throw new ApiError(403, "You don't have acess to this category");
+  }
 }
