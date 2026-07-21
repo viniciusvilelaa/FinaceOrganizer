@@ -47,3 +47,32 @@ export const updateCategory = async (req, res, next) => {
     }
 
 }
+
+//Endpoint deleteCategory
+export const deleteCategory = async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const categoryId = Number(req.params.id);
+
+    const deletedCategory = await categoryService.deleteCategoryById(userId, categoryId);
+
+    return res.status(200).json(deletedCategory);
+
+  } catch (err) {
+    next(err);
+  }
+}; 
+
+//Endpoint GET all categories (system + user)
+export const getAllCategories = async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+
+    const categories = await categoryService.getAllCategoriesForUser(userId);
+
+    return res.status(200).json(categories);
+
+  } catch (err) {
+    next(err);
+  }
+};
