@@ -38,6 +38,37 @@ export async function createCategory(userId, payload) {
   }
 }
 
+//Update Category
+export async function updateCategory(userId, categoryId,payload){
+    await findOwnedCategory(userId, categoryId);
+
+    try{
+        const updatedCategory = await prisma.category.update({
+            where: {
+                id: categoryId
+            },
+            data: {
+                name: payload.name,
+                color: payload.color
+            }
+        });
+
+        return updatedCategory
+        
+    }catch(err){
+        if(err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"){
+            throw new ApiError(409, "You already have a category with this name.");
+        }
+        
+        console.error("Error creating category:", erro);
+        throw new ApiError(500, "Error when updating category.");
+    }
+
+    
+}
+
+
+
 //Get all category, system and user.
 export async function getAllCategoriesForUser(userId) {
   if (!userId) {
