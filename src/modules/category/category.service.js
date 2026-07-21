@@ -39,35 +39,65 @@ export async function createCategory(userId, payload) {
 }
 
 //Update Category
-export async function updateCategory(userId, categoryId,payload){
-    await findOwnedCategory(userId, categoryId);
+export async function updateCategory(userId, categoryId, payload) {
+  await findOwnedCategory(userId, categoryId);
 
-    try{
-        const updatedCategory = await prisma.category.update({
-            where: {
-                id: categoryId
-            },
-            data: {
-                name: payload.name,
-                color: payload.color
-            }
-        });
+  try {
+    const updatedCategory = await prisma.category.update({
+      where: {
+        id: categoryId,
+      },
+      data: {
+        name: payload.name,
+        color: payload.color,
+      },
+    });
 
-        return updatedCategory
-        
-    }catch(err){
-        if(err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"){
-            throw new ApiError(409, "You already have a category with this name.");
-        }
-        
-        console.error("Error creating category:", erro);
-        throw new ApiError(500, "Error when updating category.");
+    return updatedCategory;
+  } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      throw new ApiError(409, "You already have a category with this name.");
     }
 
-    
+    console.error("Error creating category:", err);
+    throw new ApiError(500, "Error when updating category.");
+  }
 }
 
+//Update Category
+export async function deleteCategoryById(userId, categoryId) {
+  await findOwnedCategory(userId, categoryId);
 
+  const transactionsCount = await prisma.transaction.count({
+    where: { categoryId },
+  });
+
+  if (transactionsCount > 0) {
+    throw new ApiError(409, "Category is in use and cannout be deleted.");
+  }
+
+  try {
+    const deletedCategory = await prisma.category.delete({
+      where: { id: categoryId },
+    });
+
+    return deletedCategory;
+  } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2003"
+    ) {
+      throw new ApiError(409, "Category is in use and cannot be deleted");
+    }
+
+    console.error("Error creating category:", err);
+    throw new ApiError(500, "Error when deleting category.");
+  }
+
+}
 
 //Get all category, system and user.
 export async function getAllCategoriesForUser(userId) {
@@ -111,24 +141,24 @@ export async function findUsableCategory(userId, categoryId) {
 }
 
 //Find a category created by user
-export async function findOwnedCategory(userId, categoryId){
-    if(!userId){
-        throw new ApiError(401, 'User not authenticated.');
-    }
+export async function findOwnedCategory(userId, categoryId) {
+  if (!userId) {
+    throw new ApiError(401, "User not authenticated.");
+  }
 
-    const category = await prisma.category.findUnique({
-        where: {
-            id: categoryId
-        }
-    });
+  const category = await prisma.category.findUnique({
+    where: {
+      id: categoryId,
+    },
+  });
 
-    if(!category){
-        throw new ApiError(404, 'Category not found');
-    }
+  if (!category) {
+    throw new ApiError(404, "Category not found");
+  }
 
-    if(category.userId === userId){
-        return category
-    }else{
-        throw new ApiError(403, "You don't have permission to acess this category");
-    }
+  if (category.userId === userId) {
+    return category;
+  } else {
+    throw new ApiError(403, "You don't have permission to acess this category");
+  }
 }
