@@ -10,6 +10,6 @@ categoryRouter.use(authMiddleware);
 categoryRouter.post("/", asyncHandler(categoryController.createCategory));
 categoryRouter.get("/", asyncHandler(categoryController.getAllCategories));
 categoryRouter.put("/:id", asyncHandler(categoryController.updateCategory));
-categoryRouter.delete("/:id", asyncHandler(categoryController.updateCategory));
+categoryRouter.delete("/:id", asyncHandler(categoryController.deleteCategory));
 
 export {categoryRouter};
