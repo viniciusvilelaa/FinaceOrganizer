@@ -1,24 +1,27 @@
 import { prisma } from "../../lib/prisma.js";
 import { ApiError } from "../../utils/api-error.js";
+import { findUsableCategory } from "../category/category.service.js";
 
 //CREATE TRANSACTION
 // Cria transação vinculada ao usuário autenticado.
 export async function createTransaction(userId, payload) {
-  const { amount, type, category, description, date } = payload;
+  const { amount, type, categoryId, description, date } = payload;
 
   if (!userId) {
     throw new ApiError(401, "User not authenticated.");
   }
 
-  if (!amount || !type || !description || !date || !category) {
+  if (!amount || !type || !description || !date || !categoryId) {
     throw new ApiError(400, "Missing required fields.");
   }
+
+  await findUsableCategory(userId, categoryId);
 
   const transaction = await prisma.transaction.create({
     data: {
       amount: Number(amount),
       type: type,
-      category: category,
+      categoryId: categoryId,
       description: description,
       date: new Date(date),
       userId: Number(userId),
@@ -28,34 +31,55 @@ export async function createTransaction(userId, payload) {
   return transaction;
 }
 
+//UPDATE TRANSACTION
+export async function updateTransaction(userId, transactionId, payload) {
+  const transaction = await getTransactionById(userId, transactionId);
+
+  const { amount, type, categoryId, description, date } = payload;
+
+  if (categoryId) {
+    await findUsableCategory(userId, categoryId);
+  }
+
+  const updatedTransaction = await prisma.transaction.update({
+    where: { id: transaction.id },
+    data: {
+      ...(amount !== undefined && { amount: Number(amount) }),
+      ...(type !== undefined && { type }),
+      ...(categoryId !== undefined && { categoryId }),
+      ...(description !== undefined && { description }),
+      ...(date !== undefined && { date: new Date(date) }),
+    },
+    include: { category: true },
+  });
+
+  return updatedTransaction;
+}
+
 //GET ALL TRANSACTIONS
-// Lista todas as transações do usuário autenticado.
 export async function getAllTransactions(userId, filters) {
   if (!userId) {
     throw new ApiError(401, "User not authenticated.");
   }
 
-  //Verificando se existem filtros vindo da requisicao
   const whereClauses = {
     userId: Number(userId)
   };
 
-  if (filters?.category) {
-    whereClauses.category = filters.category;
+  if (filters?.categoryId) {
+    whereClauses.categoryId = filters.categoryId;
   }
 
   if (filters?.description) {
     whereClauses.description = {
       contains: filters.description
     };
-
   }
 
   if (filters?.type) {
     whereClauses.type = filters.type;
   }
 
-  //Logica para filtro de data
   if (filters?.period) {
     const today = new Date();
     const startDate = new Date();
@@ -66,21 +90,20 @@ export async function getAllTransactions(userId, filters) {
         break;
       case '3m':
         startDate.setMonth(today.getMonth() - 3);
-        break
+        break;
       case '1y':
         startDate.setFullYear(today.getFullYear() - 1);
-        break
+        break;
     }
 
     whereClauses.date = {
       gte: startDate,
       lte: today
     };
-
   }
 
   const page = Number(filters?.page) || 1;
-  const limit = Number(filters?.limit) || 5
+  const limit = Number(filters?.limit) || 5;
   const skip = (page - 1) * limit;
 
   const [transactions, total] = await Promise.all([
@@ -88,16 +111,16 @@ export async function getAllTransactions(userId, filters) {
       where: whereClauses,
       orderBy: { date: "desc" },
       skip,
-      take: limit
+      take: limit,
+      include: { category: true },
     }),
     prisma.transaction.count({ where: whereClauses })
   ]);
 
-  return { transactions, total, page, limit }
+  return { transactions, total, page, limit };
 }
 
 //GET TRANSACTION BY ID
-// Busca uma transação por id garantindo ownership.
 export async function getTransactionById(userId, transactionId) {
   if (!userId) {
     throw new ApiError(401, "User not authenticated.");
@@ -112,6 +135,7 @@ export async function getTransactionById(userId, transactionId) {
       id: Number(transactionId),
       userId: Number(userId),
     },
+    include: { category: true },
   });
 
   if (!transaction) {
