@@ -1,5 +1,5 @@
 import * as categoryService from "./category.service.js";
-import { createCategorySchema, updateCategorySchema } from "./category.schema";
+import { createCategorySchema, updateCategorySchema } from "./category.schema.js";
 
 
 //Endpoint POST Category

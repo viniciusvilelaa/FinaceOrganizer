@@ -4,27 +4,42 @@ import bcrypt from "bcryptjs";
 async function main() {
   console.log("🚀 Iniciando população de dados de demonstração...");
 
-  // 1. Cadastrar as categorias padrão do sistema (userId: null) via upsert
+  // 1. Cadastrar as categorias padrão do sistema (userId: null) com cores
   const defaultCategories = [
-    'COMIDA', 'TRANSPORTE', 'LAZER', 'SAUDE', 'EDUCACAO', 
-    'MORADIA', 'OUTROS', 'INVESTIMENTO', 'SALARIO', 'ASSINATURA', 'COMBUSTIVEL'
+    { name: 'SALARIO', color: '#27ae60' },
+    { name: 'COMIDA', color: '#ff9f1c' },
+    { name: 'TRANSPORTE', color: '#3498db' },
+    { name: 'LAZER', color: '#9b59b6' },
+    { name: 'SAUDE', color: '#2ecc71' },
+    { name: 'EDUCACAO', color: '#00a8cc' },
+    { name: 'MORADIA', color: '#795548' },
+    { name: 'ASSINATURA', color: '#e91e63' },
+    { name: 'COMBUSTIVEL', color: '#f1c40f' },
+    { name: 'INVESTIMENTO', color: '#16a085' },
+    { name: 'OUTROS', color: '#95a5a6' }
   ];
 
-  console.log("📂 Cadastrando categorias padrões do sistema...");
-  for (const catName of defaultCategories) {
+  console.log("📂 Cadastrando categorias padrões do sistema com cores...");
+  for (const cat of defaultCategories) {
     const existing = await prisma.category.findFirst({
       where: {
         userId: null,
-        name: catName,
+        name: cat.name,
       },
     });
 
     if (!existing) {
       await prisma.category.create({
         data: {
-          name: catName,
+          name: cat.name,
+          color: cat.color,
           userId: null,
         },
+      });
+    } else if (existing.color !== cat.color) {
+      await prisma.category.update({
+        where: { id: existing.id },
+        data: { color: cat.color }
       });
     }
   }
