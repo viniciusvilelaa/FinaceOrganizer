@@ -13,7 +13,7 @@ export const transactionCreateSchema = z.object({
 })
 
 export const transactionFiltersSchema = z.object({
-    
+    categoryId: z.coerce.number().int().positive().optional(),
     description: z.string().min(1).optional(),
     period: z.enum(['30d', '3m', '1y']).optional(),
     type: z.enum(['INCOME', 'EXPENSE']).optional(),
