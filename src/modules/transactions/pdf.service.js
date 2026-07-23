@@ -45,7 +45,7 @@ export const buildTransactionsPDF = (doc ,transactions) => {
         doc.fillColor("#2c3e50");
         doc.text(formattedDate, 50, currentY);
         doc.text(transaction.description || '', 120, currentY, {width: 150, lineBreak: false});
-        doc.text(transaction.category || '', 280, currentY);
+        doc.text(transaction.category?.name || '', 280, currentY);
         doc.fillColor(typeColor).text(typeText, 380, currentY);
         doc.fillColor("#2c3e50").text(formattedAmount, 450, currentY, {align: 'right'});
 

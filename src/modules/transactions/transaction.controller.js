@@ -132,10 +132,6 @@ export const exportTransactionPDF = async (req, res) => {
         doc.end();
 
     } catch (err) {
-        if (err instanceof ApiError) {
-            return res.status(err.statusCode).json({ message: err.message });
-        } else {
-            return res.status(500).json({ message: "Internal server error" });
-        }
+        next(err);
     }
 }; 
